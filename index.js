@@ -29,7 +29,7 @@ async function run() {
 
     const coffeeCollection = client.db('coffeeDB').collection('coffee');
 
-    // get a specific element
+    // Read a specific element
     app.get('/coffee/:id', async(req, res) => {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)};
@@ -37,7 +37,7 @@ async function run() {
       res.send(result);
     })
 
-    // 2.Read data <----> get
+    // 2.Read data all <----> get
     app.get('/coffee', async(req, res) => {
       const cursor = coffeeCollection.find();
       const result = await cursor.toArray();
@@ -49,6 +49,28 @@ async function run() {
       const newCoffee = req.body;
       console.log(newCoffee);
       const result = await coffeeCollection.insertOne(newCoffee);
+      res.send(result);
+    })
+
+    // update data
+    app.put('/coffee/:id', async(req, res) =>{
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const options = {upsert: true};
+      const updatedCoffee = req.body;
+      const coffee = {
+        $set: {
+          name: updatedCoffee.name,
+          Supplier: updatedCoffee.Supplier,
+          quantity: updatedCoffee.quantity,
+          taste: updatedCoffee.taste,
+          category: updatedCoffee.category, 
+          details: updatedCoffee.details, 
+          photo: updatedCoffee.photo,
+        }
+      }
+
+      const result = await coffeeCollection.updateOne(filter, coffee, options);
       res.send(result);
     })
 
